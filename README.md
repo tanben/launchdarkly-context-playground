@@ -1,4 +1,4 @@
-# LaunchDarkly Target and Percentage Rollout Demo
+# LaunchDarkly Target and Percentage Rollout Playground
 
 This is a sample LaunchDarkly application for demonstrating single and multiple Context targeting and percentage rollout.
 
