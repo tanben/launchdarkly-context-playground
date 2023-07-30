@@ -1,53 +1,48 @@
-# LaunchDarkly Target and Percentage Rollout Playground
+# LaunchDarkly Context Playground
 
-This is a sample LaunchDarkly application for demonstrating single and multiple Context targeting and percentage rollout.
+This application lets you test your 
+This is a  LaunchDarkly application for demonstrating single and multiple Context targeting and percentage rollout.
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+
 ## Requirements
 * [LaunchDarkly account](https://launchdarkly.com/start-trial/)
 * [Client Side ID](https://docs.launchdarkly.com/home/organize/environments/?q=clientside+id#finding-and-resetting-an-environments-sdk-key-mobile-key-or-client-side-id)
-* NodeJS >=16.x
-  
-## Features
-* Display ALL client side enabled feature flag and values for a single [Context](https://docs.launchdarkly.com/home/contexts).
-For details on [Targeting with flags](https://docs.launchdarkly.com/home/flags/targeting).
+* NodeJS >=18.x
+* React 18.x
+* LaunchDarkly React Client SDK >= 3.x
+
+## Instalation
+1. Clone this repo.
+2. Install dependencies with command:
+    ```
+    npm install
+    ```
 
 
+## Running the app
+#### `IMPORTANT:`
+> Use a sandbox Project and Environment before running this application to prevent mixing live data with test data. 
 
-![Single Context Instance](img/singleContext.jpg)
 
-
-* Evaluate a flag for multiple Context instances, returns flag value for individual Context and [percentage rollout](https://docs.launchdarkly.com/home/flags/rollouts).
-
-![Multi Context Instance](img/multiContextInstance.jpg)
-## Sample data
-FakerJS was used to generate the sample data which can be found in `./src/data.js`.
-You can find the template and data generator script in `generateData.js`
-
-## Available Scripts
-
-In the project directory, you can run:
-
-### `npm start`
-
+`npm start`\
 Runs the app in the development mode.\
 Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
 The page will reload when you make changes.\
 You may also see any lint errors in the console.
 
-### `npm run build`
+## Sample data
+Sample data was generated using *FakerJS* and can be found in `./src/data.js`.\
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+To generate sample data using a different/custom schema update and run the script `generateData.js`.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Features
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+* Display ALL client side enabled feature flag and values for a [Context](https://docs.launchdarkly.com/home/contexts). To learn more read [Targeting with flags](https://docs.launchdarkly.com/home/flags/targeting) for details.
+![Single Context Instance](img/singleContext.jpg)
 
-## Learn More
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+* Evaluate a flag for multiple Context instances.
+Return flag value for multiple contexts and validate rollout strategy](https://docs.launchdarkly.com/home/flags/rollouts).
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+![Multi Context Instance](img/multiContextInstance.jpg)
