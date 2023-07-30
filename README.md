@@ -1,7 +1,5 @@
 # LaunchDarkly Context Playground
-
-This application lets you test your 
-This is a  LaunchDarkly application for demonstrating single and multiple Context targeting and percentage rollout.
+Design and validate LaunchDarkly contexts for targeting and rollout strategy using this sample React.js app.
 
 
 ## Requirements
