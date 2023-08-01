@@ -400,7 +400,6 @@ function FlagEvalHeatMap(props) {
 
   const hasBoolVal = trueSeries.length > 0 || falseSeries.length > 0;
   const options = {
-    enableShaeds: false,
     dataLabels: {
       enabled: false,
     },
@@ -412,9 +411,29 @@ function FlagEvalHeatMap(props) {
       labels: {
         show: false,
       },
+      tooltip: {
+        enabled: false,
+      },
     },
+    yaxis: {
+      labels: {
+        show: false,
+      },
+    },
+    legend: {
+      show: true,
+      inverseOrder: true,
+    },
+
     tooltip: {
-      enabled: false,
+      enabled: true,
+
+      custom: function ({ series, seriesIndex, dataPointIndex, w }) {
+        const name =
+          w.config.series[seriesIndex].data[dataPointIndex].split(":")[1];
+
+        return name;
+      },
     },
     plotOptions: {
       heatmap: {
@@ -437,8 +456,13 @@ function FlagEvalHeatMap(props) {
       },
     },
   };
+
   const generateSeriesData = (data, maxCol = 10) => {
-    const dataTmp = data.map(({ flagValue }) => (flagValue === true ? 10 : 5));
+    const dataTmp = data.map(({ contextName, flagValue }) => {
+      let v = flagValue === true ? 10 : 5;
+      return `${v}:${contextName}`;
+    });
+
     const arr = [];
     for (let i = 0; i < dataTmp.length; i += maxCol) {
       const tmp = dataTmp.slice(i, i + maxCol);
@@ -446,7 +470,6 @@ function FlagEvalHeatMap(props) {
     }
     return arr;
   };
-
   if (!hasBoolVal) {
     return <></>;
   }
