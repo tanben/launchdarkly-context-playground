@@ -430,11 +430,21 @@ function FlagEvalHeatMap(props) {
 
       custom: function ({ series, seriesIndex, dataPointIndex, w }) {
         const name =
-          w.config.series[seriesIndex].data[dataPointIndex].split(":")[1];
-
+          w.config.series[seriesIndex].data[dataPointIndex].split("|")[1];
         return name;
       },
-    },
+    }, // tool-tip
+    chart: {
+      events: {
+        click: function (event, chartContext, config) {
+          const { seriesIndex, dataPointIndex, config: _config } = config;
+          const data = JSON.parse(
+            _config.series[seriesIndex].data[dataPointIndex].split("|")[2]
+          );
+          alert(`${JSON.stringify(data, " ", 2)}`);
+        },
+      },
+    }, // chart
     plotOptions: {
       heatmap: {
         colorScale: {
@@ -454,13 +464,15 @@ function FlagEvalHeatMap(props) {
           ],
         },
       },
-    },
-  };
+    }, //plotOptions
+  }; //options
 
+  // heatmap
   const generateSeriesData = (data, maxCol = 10) => {
-    const dataTmp = data.map(({ contextName, flagValue }) => {
+    const dataTmp = data.map(({ contextName, flagValue, context }) => {
       let v = flagValue === true ? 10 : 5;
-      return `${v}:${contextName}`;
+      // return `${v}|${contextName}|${JSON.stringify(context)}`;
+      return `${v}|${contextName}|${context}`;
     });
 
     const arr = [];
