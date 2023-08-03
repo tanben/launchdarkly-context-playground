@@ -17,7 +17,7 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import { DataVisuallize } from "./DataGridTable";
 
-import { defaultSingleUser, defaultMultiUser } from "./data";
+import { defaultMultiUser } from "./data";
 
 export default function App() {
   const defaultGetFlagsEle = () => <span>Get Flags</span>;
@@ -32,7 +32,7 @@ export default function App() {
 
   const [isFlagKeyEnabled, setIsFlagKeyEnabled] = React.useState(false);
   const [clientSideID, setClientSideID] = React.useState("");
-  const [context, setContext] = React.useState(defaultSingleUser);
+  const [context, setContext] = React.useState(defaultMultiUser[0]);
   const [tableContainerRoot, setTableContainerRoot] = React.useState(null);
   const [singleContextEnable, setSingleContextEnable] = React.useState(true);
   const [loadingButtonChildNode, setLoadingButtonChildNode] =
@@ -41,7 +41,7 @@ export default function App() {
 
   async function handleSubmit() {
     setLoading(true);
-    const ctx = !singleContextEnable ? defaultSingleUser : context;
+    const ctx = !singleContextEnable ? defaultMultiUser[0] : context;
 
     let LDProvider = await asyncWithLDProvider({
       clientSideID,
@@ -173,7 +173,7 @@ export default function App() {
             changeHandler={(event) => {
               const isSingleUser = event.target.value === "true";
               const sample = isSingleUser
-                ? defaultSingleUser
+                ? defaultMultiUser[0]
                 : defaultMultiUser;
               setContext(sample);
               if (isSingleUser) {

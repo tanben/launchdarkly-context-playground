@@ -21,15 +21,14 @@ function createRandomUser() {
       ]),
       version: faker.system.semver(),
     },
-    department: {
-      key: faker.commerce.department(),
-    },
-    company: {
-      key: faker.company.name(),
-    },
+    department: createKeyFromName(faker.commerce.department()),
+    company: createKeyFromName(faker.company.name()),
   };
 }
-
+function createKeyFromName(name) {
+  const key = name.toLocaleLowerCase().replaceAll(/\W+/g, "-");
+  return { name, key };
+}
 const max = 100;
 const users = [];
 for (let i = 0; i < max; i++) {

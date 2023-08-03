@@ -144,9 +144,8 @@ function MultiUserDataGridTable({ userContexts, flagKeyFilter, loadingFn }) {
 
   const columns = [
     {
-      // this column is hidden by default
       field: "id",
-      headerName: "Context Key",
+      headerName: "User Key",
       flex: true,
       headerClassName: "header",
     },
