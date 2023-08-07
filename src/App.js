@@ -251,12 +251,12 @@ function ContextExampleRadioGroup({ singleContext, changeHandler }) {
         <FormControlLabel
           value='true'
           control={<Radio />}
-          label='Single Instance'
+          label='Single Context'
         />
         <FormControlLabel
           value='false'
           control={<Radio />}
-          label='Multiple Instances'
+          label='Multiple Context'
         />
       </RadioGroup>
     </FormControl>
