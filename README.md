@@ -2,13 +2,13 @@
 Design and validate LaunchDarkly contexts for targeting and rollout strategy using this sample React.js app.
 
 ### Features:
+#### `NOTE`  Only available to feature flags enabled for client side use  like web or mobile SDK.
 * Test flag evaluation : targeting rules and percentage rollout with this app.
 * Identify and generate a report of contexts that will be included/excluded based on target rule or percentage rollout.
-
-Uses client-side SDK (React SDK) to make it easy to troubleshoot on the customer’s environment.
+* Uses client-side SDK (React SDK) to make it easy to troubleshoot.
 
 #### `Important`
-Create/Use a environment in your LaunchDarkly project if you will be testing with the sample data that is generated; 100 context, by this app to avoid mixing with your live data
+Use a lower environments in your Launchardkly project when testing with sample/test data to avoid mixing with your live data.
 
 ## Requirements
 * [LaunchDarkly account](https://launchdarkly.com/start-trial/)
@@ -27,7 +27,7 @@ Create/Use a environment in your LaunchDarkly project if you will be testing wit
 
 ## Running the app
 #### `IMPORTANT:`
-> Use a sandbox Project and Environment before running this application to prevent mixing live data with test data. 
+> Use a sandbox Project and Environment when testing with sample data to avoid mixing sample data with live/production data.
 
 
 `npm start`\
