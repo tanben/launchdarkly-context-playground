@@ -1,14 +1,13 @@
 # LaunchDarkly Context Playground
-Design and validate LaunchDarkly contexts for targeting and rollout strategy using this sample React.js app.
+The LaunchDarkly Context Playground is a tool that allows developers to easily design and validate target audiences and rollout strategies.
 
 ### Features:
-#### `NOTE`  Only available to feature flags enabled for client side use  like web or mobile SDK.
-* Test flag evaluation : targeting rules and percentage rollout with this app.
-* Identify and generate a report of contexts that will be included/excluded based on target rule or percentage rollout.
-* Uses client-side SDK (React SDK) to make it easy to troubleshoot.
+NOTE Only available to feature flags enabled for client-side use like web or mobile SDK.
+* Evaluate flag rules and rollout strategy
+* Generate a report of contexts and evaluated result
 
 #### `Important`
-Use a lower environments in your Launchardkly project when testing with sample/test data to avoid mixing with your live data.
+It is recommended to use separate environments in your Launchardkly project for testing purposes with test data. This ensures that the test data does not get mixed up with your live production data.
 
 ## Requirements
 * [LaunchDarkly account](https://launchdarkly.com/start-trial/)
