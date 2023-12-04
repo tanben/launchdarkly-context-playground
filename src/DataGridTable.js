@@ -33,9 +33,6 @@ function handleCellClick(params) {
 function DataVisuallize(props) {
   const { singleContextEnable } = props;
 
-  const ldClient = useLDClient();
-  ldClient.setStreaming(singleContextEnable);
-
   const Component = singleContextEnable
     ? DataGridTable
     : MultiUserDataGridTable;
@@ -141,7 +138,7 @@ function MultiUserDataGridTable({ userContexts, flagKeyFilter, loadingFn }) {
   const ldClient = useLDClient();
   const [rows, setRows] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
-
+  const [isRegistered, setIsRegistered] = React.useState(false);
   const columns = [
     {
       field: "id",
@@ -186,6 +183,15 @@ function MultiUserDataGridTable({ userContexts, flagKeyFilter, loadingFn }) {
   ];
 
   useEffect(() => {
+    const handler = function (oldVal, newVal) {
+      setTimeout(() => {
+        loadingFn(true);
+
+        setLoading(true);
+      }, 500);
+      ldClient.off(`change:${flagKeyFilter.trim()}`, handler);
+    };
+
     const populateRowValues = async () => {
       customEvalContext(ldClient, userContexts, flagKeyFilter).then(
         (result) => {
@@ -207,11 +213,24 @@ function MultiUserDataGridTable({ userContexts, flagKeyFilter, loadingFn }) {
           loadingFn(false);
           setLoading(false);
           setRows(rows);
+          if (!isRegistered) {
+            setIsRegistered(true);
+            ldClient.on(`change:${flagKeyFilter.trim()}`, handler);
+          }
         }
       );
     };
+
+    if (!loading) {
+      return;
+    }
+
     populateRowValues();
-  }, [rows.length, flagKeyFilter, ldClient, loadingFn, userContexts]);
+    return (_) => {
+      setLoading(false);
+      setIsRegistered(false);
+    };
+  }, [rows.length, flagKeyFilter, ldClient, loadingFn, userContexts, loading]);
 
   return (
     <Box>
