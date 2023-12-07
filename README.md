@@ -51,3 +51,5 @@ To generate sample data using a different/custom schema update and run the scrip
 Return flag value for multiple contexts and validate rollout strategy](https://docs.launchdarkly.com/home/flags/rollouts).
 
 ![Multi Context Instance](img/multiContextInstance.jpg)
+
+![Migration stages](img/migration.jpg)

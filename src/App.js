@@ -38,7 +38,7 @@ export default function App() {
   const [loadingButtonChildNode, setLoadingButtonChildNode] =
     React.useState(defaultGetFlagsEle);
   const [flagKeyEval, setFlagKeyEval] = React.useState("");
-
+  const [flagPurpose, setFlagPurpose] = React.useState("evaluation");
   async function handleSubmit() {
     setLoading(true);
     const ctx = !singleContextEnable ? defaultMultiUser[0] : context;
@@ -57,7 +57,7 @@ export default function App() {
         fetchGoals: false,
         diagnosticOptOut: true,
         application: {
-          version: "1.0.1",
+          version: "2.0.0",
           id: "btan-react-web-sandbox",
         },
       },
@@ -76,6 +76,7 @@ export default function App() {
       <LDProvider>
         <DataVisuallize
           singleContextEnable={singleContextEnable}
+          flagPurpose={flagPurpose}
           userContexts={context}
           flagKeyFilter={flagKeyEval}
           loadingFn={setLoading}
@@ -120,6 +121,7 @@ export default function App() {
       setClientSideID(value);
     }
   }
+
   return (
     <div className='container'>
       <Grid container rowSpacing={3} columnSpacing={3}>
@@ -172,11 +174,19 @@ export default function App() {
         <Grid xs={8}>
           <ContextExampleRadioGroup
             singleContext={singleContextEnable}
+            purpose={flagPurpose}
             changeHandler={(event) => {
-              const isSingleUser = event.target.value === "true";
+              const isSingleUserFn = (val) => val === "single-user";
+              const isMigrationFn = (val) => val === "migration";
+
+              const choice = event.target.value;
+              const isSingleUser = isSingleUserFn(choice);
+              const isMigration = isMigrationFn(choice);
+
               const sample = isSingleUser
                 ? defaultMultiUser[0]
                 : defaultMultiUser;
+
               setContext(sample);
               if (isSingleUser) {
                 setEnableSubmitButton(clientSideID.length > 0);
@@ -192,6 +202,7 @@ export default function App() {
 
               setSingleContextEnable(isSingleUser);
               setIsFlagKeyEnabled(!isSingleUser);
+              setFlagPurpose(isMigration ? "migration" : "evaluation");
             }}
           />
           <TextField
@@ -237,7 +248,12 @@ export default function App() {
   );
 }
 
-function ContextExampleRadioGroup({ singleContext, changeHandler }) {
+function ContextExampleRadioGroup({ singleContext, changeHandler, purpose }) {
+  const choice = singleContext
+    ? "single-user"
+    : purpose == "migration"
+    ? "migration"
+    : "multi-user";
   return (
     <FormControl>
       <FormLabel id='demo-row-radio-buttons-group-label'>
@@ -247,18 +263,23 @@ function ContextExampleRadioGroup({ singleContext, changeHandler }) {
         row
         aria-labelledby='demo-row-radio-buttons-group-label'
         name='controlled-radio-buttons-group'
-        value={singleContext}
+        value={choice}
         onChange={changeHandler}
       >
         <FormControlLabel
-          value='true'
+          value='single-user'
           control={<Radio />}
           label='Single Context Instance'
         />
         <FormControlLabel
-          value='false'
+          value='multi-user'
           control={<Radio />}
           label='Multiple Context Instance'
+        />
+        <FormControlLabel
+          value='migration'
+          control={<Radio />}
+          label='Migration'
         />
       </RadioGroup>
     </FormControl>

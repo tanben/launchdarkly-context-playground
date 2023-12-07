@@ -36,6 +36,7 @@ function DataVisuallize(props) {
   const Component = singleContextEnable
     ? DataGridTable
     : MultiUserDataGridTable;
+
   return <Component {...props} />;
 }
 function DataGridTable(props) {
@@ -134,7 +135,12 @@ function compareContextItems(a, b) {
   return 0;
 }
 
-function MultiUserDataGridTable({ userContexts, flagKeyFilter, loadingFn }) {
+function MultiUserDataGridTable({
+  userContexts,
+  flagKeyFilter,
+  loadingFn,
+  flagPurpose,
+}) {
   const ldClient = useLDClient();
   const [rows, setRows] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
@@ -245,11 +251,13 @@ function MultiUserDataGridTable({ userContexts, flagKeyFilter, loadingFn }) {
         <FlagEvalBarChart
           rows={rows}
           flagFilter={flagKeyFilter}
+          flagPurpose={flagPurpose}
           height={250}
           width={450}
         />
         <FlagEvalHeatMap
           rows={rows}
+          flagPurpose={flagPurpose}
           flagFilter={flagKeyFilter}
           height={245}
           width={480}
@@ -311,93 +319,17 @@ function MultiUserDataGridTable({ userContexts, flagKeyFilter, loadingFn }) {
 } //func eof
 
 function FlagEvalBarChart(props) {
-  const { flagFilter, rows, height, width } = props;
+  const { rows, height, width, flagPurpose } = props;
 
-  const falseSeries = rows.filter(({ flagValue }) => flagValue === false);
-  const trueSeries = rows.filter(({ flagValue }) => flagValue === true);
-  const hasBoolVal = trueSeries.length > 0 || falseSeries.length > 0;
-  let options = {
-    chart: {
-      stacked: true,
-    },
-    plotOptions: {
-      bar: {
-        horizontal: true,
-        barHeight: "85%",
-        dataLabels: {
-          total: {
-            enabled: false,
-          },
-        },
-      },
-    },
-    stroke: {
-      width: 1,
-      colors: ["#fff"],
-    },
-    title: {
-      text: `Rollout: ${flagFilter}`,
-    },
-    xaxis: {
-      categories: ["Percentage"],
-      max: 100,
-      labels: {
-        show: true,
-        formatter: function (val) {
-          return val + "%";
-        },
-      },
-    },
+  const { series, hasBoolVal, seriesOptions } =
+    flagPurpose === "evaluation"
+      ? createBarChartBooleanDataSeries(props)
+      : createBarChartMigrationDataSeries(props);
 
-    fill: {
-      opacity: 1,
-    },
-    legend: {
-      position: "top",
-      horizontalAlign: "left",
-      offsetX: 40,
-      markers: {
-        fillColors: ["#05a80a", "#fc4503"],
-      },
-    },
-  };
-
-  const series = [
-    {
-      name: "True",
-      data: [
-        {
-          x: "True",
-          y: Math.ceil((trueSeries.length / rows.length) * 100),
-          fillColor: "#05a80a",
-        },
-      ],
-    },
-    {
-      name: "False",
-      data: [
-        {
-          x: "False",
-          y: Math.ceil((falseSeries.length / rows.length) * 100),
-          fillColor: "#fc4503",
-        },
-      ],
-    },
-  ];
-
-  const tooltip = {
-    enabled: true,
-    y: {
-      formatter: function (val) {
-        return Math.floor((val / 100) * rows.length);
-      },
-    },
-  };
-
-  if (!hasBoolVal) {
+  if (!hasBoolVal && flagPurpose === "evaluation") {
     return <></>;
   }
-  options = { ...options, tooltip };
+  const options = { ...seriesOptions };
   return (
     <Chart
       options={options}
@@ -410,20 +342,94 @@ function FlagEvalBarChart(props) {
 }
 
 function FlagEvalHeatMap(props) {
-  const { flagFilter, rows, height, width } = props;
+  let { flagFilter, rows, height, width, flagPurpose } = props;
 
-  const falseSeries = rows.filter(({ flagValue }) => flagValue === false);
+  const migrationPlotOptions = {
+    heatmap: {
+      enableShades: false,
+      colorScale: {
+        ranges: [
+          {
+            from: 1,
+            to: 1,
+            color: "#FC4503",
+            name: "off",
+          },
+          {
+            from: 2,
+            to: 2,
+            color: "#C103FC",
+            name: "dualwrite",
+          },
+          {
+            from: 3,
+            to: 3,
+            color: "#BB8144",
+            name: "shadow",
+          },
+          {
+            from: 4,
+            to: 4,
+            color: "#033DFC",
+            name: "live",
+          },
+          {
+            from: 5,
+            to: 5,
+            color: "#03BAFC",
+            name: "rampdown",
+          },
+          {
+            from: 6,
+            to: 6,
+            color: "#05a80a",
+            name: "complete",
+          },
+        ],
+      },
+    },
+  };
 
-  const trueSeries = rows.filter(({ flagValue }) => flagValue === true);
+  const defaultPlotOptions = {
+    heatmap: {
+      colorScale: {
+        ranges: [
+          {
+            from: 0,
+            to: 5,
+            color: "#fc4503",
+            name: "False",
+          },
+          {
+            from: 6,
+            to: 10,
+            color: "#05a80a",
+            name: "True",
+          },
+        ],
+      },
+    },
+  };
 
-  const hasBoolVal = trueSeries.length > 0 || falseSeries.length > 0;
+  const plotOptions = defaultPlotOptions;
+
+  const migrationStages = [
+    "off",
+    "dualwrite",
+    "shadow",
+    "live",
+    "rampdown",
+    "complete",
+  ];
+  const { hasBoolVal } = createBooleanDataSeries(rows);
+
   const options = {
     dataLabels: {
       enabled: false,
     },
 
     title: {
-      text: `Rollout: ${flagFilter}`,
+      text: `${flagPurpose.toUpperCase()} : ${flagFilter}`,
     },
     xaxis: {
       labels: {
@@ -452,10 +458,17 @@ function FlagEvalHeatMap(props) {
         return name;
       },
     }, // tool-tip
+    legend: {
+      horizontalAlign: "left",
+      inverseOrder: false,
+    },
     chart: {
       events: {
         click: function (event, chartContext, config) {
           const { seriesIndex, dataPointIndex, config: _config } = config;
+          if (seriesIndex < 0) {
+            return;
+          }
           const data = JSON.parse(
             _config.series[seriesIndex].data[dataPointIndex].split("|")[2]
           );
@@ -463,34 +476,22 @@ function FlagEvalHeatMap(props) {
         },
       },
     }, // chart
-    plotOptions: {
-      heatmap: {
-        colorScale: {
-          ranges: [
-            {
-              from: 0,
-              to: 5,
-              color: "#fc4503",
-              name: "False",
-            },
-            {
-              from: 6,
-              to: 10,
-              color: "#05a80a",
-              name: "True",
-            },
-          ],
-        },
-      },
-    }, //plotOptions
+    plotOptions,
   }; //options
 
   // heatmap
   const generateSeriesData = (data, maxCol = 10) => {
+    let flagValues = [];
     const dataTmp = data.map(({ contextName, flagValue, context }) => {
-      let v = flagValue === true ? 10 : 5;
-      // return `${v}|${contextName}|${JSON.stringify(context)}`;
-      return `${v}|${contextName}|${context}`;
+      let v = 0;
+
+      if (flagPurpose === "migration") {
+        v = migrationStages.findIndex((val) => val === flagValue) + 1;
+      } else {
+        v = flagValue === true ? 10 : 5;
+      }
+      flagValues.push(flagValue);
+      return `${v}|&nbsp;${contextName}<br>&nbsp;${flagValue}|${context}`;
     });
 
     const arr = [];
@@ -498,20 +499,259 @@ function FlagEvalHeatMap(props) {
       const tmp = dataTmp.slice(i, i + maxCol);
       arr.push({ name: ``, data: tmp });
     }
-    return arr;
+    flagValues = [...new Set(flagValues)];
+    return { data: arr, flagValues };
   };
-  if (!hasBoolVal) {
+
+  if (!hasBoolVal && flagPurpose === "evaluation") {
     return <></>;
+  }
+
+  const { data: seriesData, flagValues } = generateSeriesData(rows);
+
+  if (flagPurpose === "migration") {
+    // const ranges = migrationPlotOptions.heatmap.colorScale.ranges.filter(
+    //   (range) => flagValues.includes(range.name)
+    // );
+
+    options.plotOptions = migrationPlotOptions;
+    // hide
+    // options.plotOptions.heatmap.colorScale.ranges = ranges;
   }
 
   return (
     <Chart
       options={options}
-      series={generateSeriesData(rows)}
+      series={seriesData}
       type='heatmap'
       height={height}
       width={width}
     />
   );
 }
+
+function createBooleanDataSeries(rows) {
+  const falseSeries = rows.filter(({ flagValue }) => flagValue === false);
+  const trueSeries = rows.filter(({ flagValue }) => flagValue === true);
+  const hasBoolVal = trueSeries.length > 0 || falseSeries.length > 0;
+
+  return { falseSeries, trueSeries, hasBoolVal };
+}
+
+function createBarChartBooleanDataSeries({ rows, flagPurpose, flagFilter }) {
+  const { trueSeries, falseSeries, hasBoolVal } = createBooleanDataSeries(rows);
+  const series = [
+    {
+      name: "True",
+      data: [
+        {
+          x: "True",
+          y: Math.ceil((trueSeries.length / rows.length) * 100),
+          fillColor: "#05a80a",
+        },
+      ],
+    },
+    {
+      name: "False",
+      data: [
+        {
+          x: "False",
+          y: Math.ceil((falseSeries.length / rows.length) * 100),
+          fillColor: "#fc4503",
+        },
+      ],
+    },
+  ];
+  const seriesOptions = {
+    chart: {
+      stacked: true,
+    },
+    plotOptions: {
+      bar: {
+        horizontal: true,
+        barHeight: "85%",
+        dataLabels: {
+          total: {
+            enabled: false,
+          },
+        },
+      },
+    },
+    stroke: {
+      width: 1,
+      colors: ["#fff"],
+    },
+    title: {
+      text: `${flagPurpose.toUpperCase()}: ${flagFilter}`,
+    },
+    xaxis: {
+      categories: ["Percentage"],
+      max: 100,
+      labels: {
+        show: true,
+        formatter: function (val) {
+          return val + "%";
+        },
+      },
+    },
+
+    fill: {
+      opacity: 1,
+    },
+    tooltip: {
+      enabled: true,
+      y: {
+        formatter: function (val) {
+          return Math.floor((val / 100) * rows.length);
+        },
+      },
+    },
+    legend: {
+      position: "top",
+      horizontalAlign: "left",
+      offsetX: 40,
+      markers: {
+        fillColors: ["#05a80a", "#fc4503"],
+      },
+    },
+  };
+
+  return { series, trueSeries, falseSeries, hasBoolVal, seriesOptions };
+}
+
+function createBarChartMigrationDataSeries({ rows, flagPurpose, flagFilter }) {
+  const offSeries = rows.filter(({ flagValue }) => flagValue === "off");
+  const dualWriteSeries = rows.filter(
+    ({ flagValue }) => flagValue === "dualwrite"
+  );
+  const shadowSeries = rows.filter(({ flagValue }) => flagValue === "shadow");
+  const liveSeries = rows.filter(({ flagValue }) => flagValue === "live");
+  const rampDownSeries = rows.filter(
+    ({ flagValue }) => flagValue === "rampdown"
+  );
+  const completeSeries = rows.filter(
+    ({ flagValue }) => flagValue === "complete"
+  );
+
+  const series = [
+    {
+      name: "off",
+      data: [
+        {
+          x: "off",
+          y: Math.ceil((offSeries.length / rows.length) * 100),
+          fillColor: "#FC4503",
+        },
+      ],
+    },
+    {
+      name: "dualwrite",
+      data: [
+        {
+          x: "dualwrite",
+          y: Math.ceil((dualWriteSeries.length / rows.length) * 100),
+          fillColor: "#C103FC",
+        },
+      ],
+    },
+    {
+      name: "shadow",
+      data: [
+        {
+          x: "shadow",
+          y: Math.ceil((shadowSeries.length / rows.length) * 100),
+          fillColor: "#BB8144",
+        },
+      ],
+    },
+    {
+      name: "live",
+      data: [
+        {
+          x: "live",
+          y: Math.ceil((liveSeries.length / rows.length) * 100),
+          fillColor: "#033DFC",
+        },
+      ],
+    },
+    {
+      name: "rampdown",
+      data: [
+        {
+          x: "rampdown",
+          y: Math.ceil((rampDownSeries.length / rows.length) * 100),
+          fillColor: "#03BAFC",
+        },
+      ],
+    },
+    {
+      name: "complete",
+      data: [
+        {
+          x: "complete",
+          y: Math.ceil((completeSeries.length / rows.length) * 100),
+          fillColor: "#05a80a",
+        },
+      ],
+    },
+  ];
+
+  let seriesOptions = {
+    title: {
+      text: `${flagPurpose.toUpperCase()}:  ${flagFilter} (Instance count)`,
+      align: "middle",
+    },
+    chart: {
+      type: "bar",
+    },
+    plotOptions: {
+      bar: {
+        borderRadius: 0,
+        horizontal: true,
+        barHeight: "100%",
+        isFunnel: true,
+      },
+    },
+    dataLabels: {
+      enabled: true,
+      dropShadow: {
+        enabled: true,
+      },
+    },
+
+    stroke: {
+      width: 1,
+      colors: ["#fff"],
+    },
+    tooltip: {
+      enabled: true,
+      x: {
+        show: false,
+      },
+      y: {
+        formatter: function (val, opt) {
+          return val;
+        },
+      },
+    },
+    legend: {
+      show: true,
+      position: "top",
+      horizontalAlign: "left",
+      offsetX: 40,
+      markers: {
+        fillColors: [
+          "#FC4503",
+          "#C103FC",
+          "#BB8144",
+          "#033DFC",
+          "#03BAFC",
+          "#05a80a",
+        ],
+      },
+    },
+  };
+  return { series, seriesOptions, hasBoolVal: false };
+}
+
 export { DataVisuallize, DataGridTable, MultiUserDataGridTable };
