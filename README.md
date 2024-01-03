@@ -14,7 +14,7 @@ It is recommended to use separate environments in your Launchardkly project for 
 * [Client Side ID](https://docs.launchdarkly.com/home/organize/environments/?q=clientside+id#finding-and-resetting-an-environments-sdk-key-mobile-key-or-client-side-id)
 * NodeJS >=18.x
 * React 18.x
-* LaunchDarkly React Client SDK >= 3.x
+
 
 ## Instalation
 1. Clone this repo.
@@ -47,9 +47,10 @@ To generate sample data using a different/custom schema update and run the scrip
 ![Single Context Instance](img/singleContext.jpg)
 
 
-* Evaluate a flag for multiple Context instances.
-Return flag value for multiple contexts and validate rollout strategy](https://docs.launchdarkly.com/home/flags/rollouts).
+* Evaluate a flag for multiple Context instances. Return flag value for multiple contexts and [validate rollout strategy](https://docs.launchdarkly.com/home/flags/rollouts).
 
 ![Multi Context Instance](img/multiContextInstance.jpg)
+
+* Evaluate a migration flag at [cohort level](https://docs.launchdarkly.com/home/flag-types/migration-flags/metrics) indicating migration phase for each individual/cohort.
 
 ![Migration stages](img/migration.jpg)
