@@ -5,3 +5,5 @@ package-lock.json
 build/
 *.csv
 *.data
+*.zip
+.DS_*

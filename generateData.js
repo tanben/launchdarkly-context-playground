@@ -1,3 +1,10 @@
+/**
+ * Generate fake context data.
+ * Data is directed to STDOUT, to use with the context playground application redirect output
+ * to ./src/data.js.
+ * For example:
+ * $> node generateData.js > ./src/data.js
+ */
 const { faker } = require("@faker-js/faker");
 
 function createRandomUser() {
@@ -29,11 +36,16 @@ function createKeyFromName(name) {
   const key = name.toLocaleLowerCase().replaceAll(/\W+/g, "-");
   return { name, key };
 }
-const max = 100;
-const users = [];
-for (let i = 0; i < max; i++) {
-  const user = createRandomUser();
-  users.push(user);
+
+function main() {
+  const max = 100;
+  const users = [];
+  for (let i = 0; i < max; i++) {
+    const user = createRandomUser();
+    users.push(user);
+  }
+
+  console.log(JSON.stringify(users, null, 2));
 }
 
-console.log(JSON.stringify(users, null, 2)); //?
+main();
