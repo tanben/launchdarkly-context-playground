@@ -1,17 +1,17 @@
 # LaunchDarkly Context Playground
 
-The LaunchDarkly Context Playground is a simple tool designed to help developers seamlessly design and validate target audiences and rollout strategies for their feature flags. This project aims to simplify the process of testing and evaluating flag rules and rollout strategies, enabling developers to make informed decisions and ensure smooth feature rollouts.
+The LaunchDarkly Context Playground is a simple tool designed to help developers seamlessly design and validate target audiences and rollout strategies for their feature flags. This tool facilitates the design of flag rules and ensures smooth feature rollouts.
 
 ## Key Features:
-* Evaluate flag rules and rollout strategies for client-side feature flags (web or mobile SDK)
-* Generate comprehensive reports of contexts and evaluated results
-* Test feature flags with multiple context instances simultaneously
-* Evaluate migration flags at the cohort level, indicating migration phases for each individual/cohort
+* **Evaluation of Flag Rules**: Test flag rules and rollout strategies effectively for web or mobile SDKs.
+* **Context Simulation**: Simultaneously test multiple context instances to validate rollout strategies.
+* **Migration Flags**: Evaluate migration flags at the cohort level, helping in transition phases.
+* **Comprehensive Reporting**: Generate detailed reports of contexts and evaluation outcomes.
 
-NOTE: Must have client-side availability enabled.
+**NOTE**: This app uses client-side SDK. Client-side availability option must be enabled for the flags in your LaunchDarkly project to allow flag evaluation.
 
 
-### `Important`
+### `Important Notice`
 To ensure the integrity of your live production data, it is highly recommended to use separate environments in your LaunchDarkly project for testing purposes. This allows you to safely test with sample data without affecting your production environment.
 
 ## Prerequisites
@@ -52,9 +52,9 @@ Sample data used by this application was generated using *FakerJS* and can be fo
     ```
 
 ### Capabilities
-* Display all client-side enabled feature flags and their values for a specific Context.
-* Evaluate a flag for multiple Context instances simultaneously, validating the rollout strategy.
-* Evaluate migration flags at the cohort level, indicating the migration phase for each individual/cohort.
+* Single Context Instance: Display feature flags and values.
+* Multiple Context Instances: Evaluate flags for several contexts simultaneously.
+* Migration Stages: Show migration stages for users.
 
 #### Screenshots
 ![Single Context Instance](img/singleContext.jpg)
