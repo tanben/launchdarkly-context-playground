@@ -12,12 +12,19 @@ import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import FormControl from "@mui/material/FormControl";
 import FormLabel from "@mui/material/FormLabel";
+import Switch from '@mui/material/Switch';
 
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { DataVisuallize } from "./DataGridTable";
 
 import { defaultMultiUser } from "./data";
+
+
+// Add this constant at the top of the file, outside the component
+const STORAGE_KEYS = {
+  SEND_EVENTS: 'ld_send_events'
+};
 
 export default function App() {
   const defaultGetFlagsEle = () => <span>Get Flags</span>;
@@ -39,9 +46,19 @@ export default function App() {
     React.useState(defaultGetFlagsEle);
   const [flagKeyEval, setFlagKeyEval] = React.useState("");
   const [flagPurpose, setFlagPurpose] = React.useState("evaluation");
+  const [sendEvents, setSendEvents] = React.useState(() => {
+    const storedValue = localStorage.getItem(STORAGE_KEYS.SEND_EVENTS);
+    return storedValue ? JSON.parse(storedValue) : false;
+  });
+
   async function handleSubmit() {
     setLoading(true);
     const ctx = !singleContextEnable ? defaultMultiUser[0] : context;
+    
+    // Get the current sendEvents setting from localStorage
+    const currentSendEvents = JSON.parse(
+      localStorage.getItem(STORAGE_KEYS.SEND_EVENTS) || 'false'
+    );
 
     let LDProvider = await asyncWithLDProvider({
       clientSideID,
@@ -50,11 +67,12 @@ export default function App() {
           destination: (line) => alert(line),
           level: "error",
         }),
+        bootstrap: "localStorage",
         streaming: true,
-        sendEvents: false,
+        sendEvents: currentSendEvents,
         evaluationReasons: true,
-        sendEventsOnlyForVariation: true,
-        fetchGoals: false,
+        sendEventsOnlyForVariation: false,
+        fetchGoals: true,
         diagnosticOptOut: true,
         application: {
           version: "2.0.0",
@@ -122,6 +140,14 @@ export default function App() {
     }
   }
 
+  const handleSendEventsToggle = (event) => {
+    const newValue = event.target.checked;
+    localStorage.setItem(STORAGE_KEYS.SEND_EVENTS, JSON.stringify(newValue));
+    setSendEvents(newValue);
+    // Reload the page to reinitialize the LD client with new settings
+    window.location.reload();
+  };
+
   return (
     <div className='container'>
       <Grid container rowSpacing={3} columnSpacing={3}>
@@ -139,6 +165,18 @@ export default function App() {
               onChange={onClientSideIDChangeHandler}
               placeholder='Client ID'
               helperText='Enter client-side SDK key'
+            />
+          </Grid>
+          <Grid>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={sendEvents}
+                  onChange={handleSendEventsToggle}
+                  name="sendEvents"
+                />
+              }
+              label="Send Events to LaunchDarkly"
             />
           </Grid>
           <Grid>
